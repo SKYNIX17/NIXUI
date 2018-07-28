@@ -1,0 +1,455 @@
+body {
+    overflow: hidden;
+}
+
+#app {
+    padding-right: 20px;
+}
+
+#top-bar {
+
+}
+
+.top-right {
+    padding: 7px 0;
+    float: right;
+}
+
+.top-right .el-switch__label {
+    opacity: 0;
+    color: #FFFFFF;
+    transition: all .3s;
+}
+
+.top-right .el-switch__label--left > span,
+.top-right .el-switch__label--right > span {
+    position: absolute;
+    z-index: 1;
+    
+}
+
+.top-right .el-switch__label--left > span {
+    top: 3px;
+    right: 26px;
+}
+
+.top-right .el-switch__label--right > span {
+    top: 3px;
+    left: 26px;
+}
+
+.top-right .is-active {
+    opacity: 1;
+}
+
+#table .el-table__row {
+    position: relative;
+}
+
+.del-all {
+    color: #FF0000;
+    cursor: pointer;
+}
+
+.dir-button {
+    float: right;
+    margin: 0 10px;
+}
+
+.table-body {
+    border-top: 1px solid #E2E2E2;
+    margin-top: 15px;
+    overflow: auto;
+    padding-left: 20px;
+    padding-right: 10px;
+}
+
+.path-lable {
+    font-size: 17px;
+    font-weight: bold;
+    color: #D0D0D0;
+    margin: 10px;
+    cursor: pointer;
+}
+
+.loading-column {
+    position: absolute !important;
+    margin-top: 0;
+    width: 100%;
+    background: transparent;
+    transform: scale(.8);
+    z-index: 9;
+    top: 0;
+    height: 100%;
+}
+
+.loading-column .el-loading-mask {
+    background-color: transparent;
+}
+
+.download-type {
+    font-weight: bold;
+    font-size: 17px;
+    color: #FF8300;
+}
+
+.name-edit {
+    cursor: pointer;
+    color: #FF6A20;
+    margin: 5px;
+}
+
+.table-name {
+
+}
+
+.name-popover-title {
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #6F6F6F;
+    font-size: 14px;
+}
+
+.filter-tips {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    font-size: 20px;
+    font-weight: bold;
+    color: #FF0000;
+    opacity: .15;
+}
+
+.download-msg {
+    font-size: 12px;
+    color: #B7B7B7;
+    font-weight: normal;
+    white-space: nowrap;
+    text-align: center;
+}
+
+/*搜索*/
+#search-list {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    background: rgba(255, 118, 0, 0.75);
+    z-index: 1999;
+    padding: 0 10px;
+    min-width: 500px;
+    width: 50%;
+    box-shadow: -1px 1px 2px rgba(0, 0, 0, 0.23);
+    transition: all .3s;
+    transform: translateX(100%);
+}
+
+.on {
+    transform: translateX(0) !important;
+}
+
+.list-button {
+    position: absolute;
+    left: -23px;
+    top: 60px;
+    width: 23px;
+    text-align: center;
+    background: #FF8733;
+    border-radius: 3px 0 0 3px;
+    color: #FFFFFF;
+    padding: 10px 0;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .3s;
+}
+
+.list-button.button2 {
+    top: 150px;
+}
+
+.list-button:hover {
+    background: #FF7224;
+}
+
+#search-list.on .list-button {
+    opacity: .8;
+    background: #A85922;
+}
+
+#search-list.on .list-button.active {
+    opacity: 1;
+    background: #FF8733;
+    box-shadow: -1px 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+#search-list > .list-box {
+    padding: 15px 0;
+}
+
+#search-list > .list-box > .list-search {
+    position: relative;
+    padding-right: 55px;
+}
+
+#search-list > .list-box > .list-search input {
+    width: 100%;
+    height: 30px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 3px;
+    outline: none;
+    font-weight: bold;
+    color: #F37B27;
+    text-align: center;
+}
+
+#search-list > .list-box > .list-search .button {
+    width: 30px;
+    background: #FFFFFF;
+    position: absolute;
+    right: 0;
+    top: 0;
+    text-align: center;
+    border-radius: 3px;
+    height: 30px;
+    line-height: 30px;
+    cursor: pointer;
+    color: #F37B27;
+    transition: all .3s;
+}
+
+#search-list > .list-box > .list-search .button:hover {
+    background: #EEEEEE;
+    overflow: hidden;
+}
+
+#search-list > .list-box > .list-search .button:active {
+    background: #D0D0D0;
+}
+
+.search-list, other-list {
+    margin: 10px 0;
+    min-height: 500px;
+    overflow: auto;
+    transition: all .3s;
+    
+}
+
+.search-item {
+    background: rgba(255, 255, 255, 0.75);
+    padding: 10px;
+    margin-bottom: 3px;
+    border-radius: 3px;
+    padding-right: 100px;
+    position: relative;
+    margin-right: 3px;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.14);
+}
+
+.search-item-name {
+    color: #3C3C3C;
+    font-weight: bold;
+    font-size: 17px;
+}
+
+.search-item-description {
+    font-size: 12px;
+    color: #6D6D6D;
+}
+
+.search-item-button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100px;
+    height: 100%;
+    border-left: 1px solid #FFFFFF;
+    text-align: center;
+}
+
+#search-list .el-loading-mask {
+    background: transparent;
+}
+
+#search-list .download-type {
+    font-size: 13px;
+    color: #8A8A8A;
+    margin-top: 15px;
+    overflow: hidden;
+}
+
+#search-list .el-loading-spinner .path {
+    stroke: #FFFFFF;
+}
+
+.sub-name,
+.sub-version {
+    color: #ECECEC;
+    font-weight: normal;
+    font-size: 14px;
+}
+
+.sub-name {
+    color: #8E8E8E;
+}
+
+.item-exist {
+    margin-top: 20px;
+    color: #349E00;
+}
+
+.del-button {
+    color: #FF0000;
+    margin-right: 10px;
+    position: absolute;
+    top: -2px;
+    right: 0;
+    opacity: .5;
+    transition: all .3s;
+    font-size: 15px;
+}
+
+.del-button:hover {
+    color: #FF0000;
+    opacity: 1;
+}
+
+/*下载列表*/
+#download-list {
+    position: absolute;
+    top: 100px;
+    width: 500px;
+    height: 50%;
+    z-index: 1999;
+    background: rgba(255, 118, 0, 0.85);
+    color: #FFFFFF;
+    border-radius: 3px;
+    transform: translateX(-100%);
+    left: 0;
+    transition: all .3s;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#download-list.on {
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+#download-list > .list-button {
+    left: 500px;
+    border-radius: 0 3px 3px 0;
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+.download-box {
+    overflow: auto;
+    height: 100%;
+}
+
+.download-item {
+    padding: 5px 15px;
+    min-height: 31px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.download-name {
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.download-msg {
+    text-align: right;
+}
+
+.download-msg .download-type {
+    font-weight: normal;
+    font-size: 15px;
+    color: #FFFFFF;
+    text-align: right;
+}
+
+.download-msg .download-type .download-msg {
+    color: #E2E2E2;
+}
+
+.other-list .item-exist {
+    margin-top: 10px;
+}
+
+.download-button {
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.4);
+    margin-top: 5px;
+    padding-top: 10px;
+}
+
+input::-webkit-input-placeholder {
+    color: #C1C1C1;
+}
+
+input::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color: #C1C1C1;;
+}
+
+input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color: #C1C1C1;;
+}
+
+input:-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: #C1C1C1;;
+}
+
+/*滚动条样式*/
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background-color: transparent;
+}
+
+/*定义滚动条轨道*/
+::-webkit-scrollbar-track {
+    background-color: #F5F7F9;
+    border-radius: 2px;
+}
+
+::-webkit-scrollbar-track:hover {
+    background-color: #E7E9EB;
+}
+
+/*定义滑块*/
+::-webkit-scrollbar-thumb {
+    border-radius: 2px;
+    background-color: #C9CED5;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #B0B5BB;
+}
+
+/* 滚动条颜色 */
+scrollbar {
+    -moz-appearance: none !important;
+    background: rgb(0, 255, 0) !important;
+}
+
+/* 滚动条按钮颜色 */
+thumb, scrollbarbutton {
+    -moz-appearance: none !important;
+    background-color: rgb(0, 0, 255) !important;
+}
+
+/* 鼠标悬停时按钮颜色 */
+thumb:hover, scrollbarbutton:hover {
+    -moz-appearance: none !important;
+    background-color: rgb(255, 0, 0) !important;
+}
+
+/* 隐藏上下箭头 */
+scrollbarbutton {
+    display: none !important;
+}
+
+/* 纵向滚动条宽度 */
+scrollbar[orient="vertical"] {
+    min-width: 15px !important;
+}

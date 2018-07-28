@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WOW插件更新器 by HKLMTT (奥尔加隆 - 猿飞菖蒲 - HKLMTT#51439) v.0.0.3</title>
+    <link rel="stylesheet" href="lib/element.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+<div id="app">
+    <template>
+        <div id="top-bar">
+            <el-button type="warning" circle onclick="$(this).next().click();" title="选择WOW所在的目录" class="dir-button">
+                W
+            </el-button>
+            <input type="file" v-show="false" nwdirectory @change="wowPathChange">
+            <el-button type="success" circle @click="refreshAll" title="刷新" style="float: right">
+                <i class="el-icon-refresh"></i>
+            </el-button>
+            <span v-show="wowPath" class="path-lable"
+                @click="openDir(wowPath)">{{wowPath?'插件目录: ':''}}{{wowPath}}</span>
+            <i class="el-icon-delete del-all" v-if="wowPath" title="清空插件目录" @click="delAll"></i>
+            <br>
+            <br>
+            <el-button-group>
+                <el-button type="primary" size="mini" @click="checkAll">检查更新</el-button>
+                <el-button type="warning" size="mini" @click="updateAll">批量更新</el-button>
+                <el-button type="danger" size="mini" @click="checkedDelAll">批量删除</el-button>
+            </el-button-group>
+            <div class="top-right">
+                <el-switch
+                    v-if="release !== null"
+                    :width="110"
+                    v-model="release"
+                    active-color="rgb(255, 120, 0)"
+                    inactive-color="rgb(12, 189, 117)"
+                    active-text="禁用测试版"
+                    inactive-text="允许测试版">
+                </el-switch>
+            </div>
+        </div>
+        <div v-if="tableList" class="table-body">
+            <el-table :data="tableList" style="width: 100%" id="table" @selection-change="handleSelectionChange"
+                :height="tableH">
+                <el-table-column
+                    type="selection"
+                    width="55">
+                </el-table-column>
+                <el-table-column label="本地插件名称" align="center">
+                    <template slot-scope="scope">
+                        <div class="table-name" :title="scope.row.Notes || ''">
+                            <el-popover
+                                v-if="!scope.row.isFilter"
+                                placement="top"
+                                width="350"
+                                v-model="scope.row.popover">
+                                <div class="name-popover-title">修改插件名称(插件以该名称进行搜索)</div>
+                                <el-input v-model="scope.row.editName" placeholder="请输入需要替换的名称" size="mini"></el-input>
+                                <el-button type="text" style="float: right" @click="editName(scope.row)">确定</el-button>
+                                <el-button type="text" @click="editName(scope.row, true)">恢复默认</el-button>
+                                <i slot="reference" class="el-icon-edit name-edit" title="修改名称(插件以该名称进行搜索)"></i>
+                            </el-popover>
+                            <span @click="openDir(scope.row)" style="cursor: pointer">{{ getName(scope.row) }}</span>
+                            <span v-if="scope.row.isFilter" class="filter-tips">已忽略</span>
+                        </div>
+                    </template>
+                </el-table-column>
+                <el-table-column label="依赖" align="center">
+                    <template slot-scope="scope">
+                        <span>{{ getDependencies(scope.row) }}</span>
+                    </template>
+                </el-table-column>
+                <!--<el-table-column label="游戏版本号" align="center">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.Interface }}</span>
+                    </template>
+                </el-table-column>-->
+                <el-table-column label="远程匹配插件" align="center">
+                    <template slot-scope="scope">
+                        <div v-loading="loading[scope.$index]" v-if="loading[scope.$index]"
+                            class="loading-column"></div>
+                        <el-select v-model="scope.row.onlineName" placeholder="未找到匹配的插件" v-if="scope.row.onlineData"
+                            size="mini" :disabled="loading[scope.$index] || scope.row.isFilter"
+                            @change="onlineNameChange(scope.row, scope.row.onlineName)">
+                            <el-option
+                                v-for="item in scope.row.onlineData"
+                                :label="item.searchName"
+                                :value="item.name">
+                            </el-option>
+                        </el-select>
+                    </template>
+                </el-table-column>
+                <el-table-column label="远程版本" align="center">
+                    <template slot-scope="scope">
+                        <div v-loading="loading[scope.$index]" v-if="loading[scope.$index]"
+                            class="loading-column"></div>
+                        <el-select v-model="scope.row.onlineVersion" placeholder="暂无" size="mini"
+                            :disabled="loading[scope.$index] || scope.row.isFilter || !scope.row.onlineData"
+                            v-if="scope.row.onlineVersionList">
+                            <el-option
+                                :style="{color:item.release===false?'rgb(255, 120, 0)':'rgb(12, 189, 117)'}"
+                                v-for="item in scope.row.onlineVersionList"
+                                :label="item.version"
+                                :value="item.download">
+                            </el-option>
+                        </el-select>
+                    </template>
+                </el-table-column>
+                <el-table-column label="本地版本" align="center">
+                    <template slot-scope="scope">
+                        <span :style="{color: getVersionColor(scope.row)}">{{ scope.row.Version }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="操作" align="center" width="250">
+                    <template slot-scope="scope">
+                        <div v-if="downloadType[scope.$index]" class="download-type"
+                            v-html="formatDT(downloadType[scope.$index])"></div>
+                        <div v-else-if="scope.row.isFilter">
+                            <el-button
+                                type="warning" plain
+                                size="mini"
+                                @click="delFilterFiles(scope.row)">
+                                恢复忽略
+                            </el-button>
+                        </div>
+                        <div v-else>
+                            <el-button
+                                :disabled="loading[scope.$index]"
+                                type="warning"
+                                v-if="checkIsUpdate(scope.row)"
+                                size="mini"
+                                @click="upDateFiles(scope.row)">
+                                更新
+                            </el-button>
+                            <el-button
+                                size="mini"
+                                type="primary" plain
+                                @click="getOnlineData(scope.row)">
+                                {{
+                                loading[scope.$index] ? '重试' : '检查'
+                                }}
+                            </el-button>
+                            <el-button
+                                :disabled="loading[scope.$index]"
+                                type="info" plain
+                                size="mini"
+                                @click="filterFiles(scope.row)">
+                                忽略
+                            </el-button>
+                        </div>
+                        <el-button
+                            :disabled="loading[scope.$index]"
+                            type="text"
+                            v-if="!downloadType[scope.$index]"
+                            size="mini" class="del-button"
+                            @click="delInterface(scope.row)">
+                            <i class="el-icon-delete"></i>
+                        </el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </div>
+        <div style="text-align: right" id="footer">
+            <el-pagination
+                :current-page.sync="page"
+                :page-size="size"
+                layout="total, prev, pager, next"
+                :total="getTotal()">
+            </el-pagination>
+        </div>
+        <!--侧边栏 添加插件-->
+        <div id="search-list" :class="{on:searchShow}">
+            <div class="list-button button1" @click="searchFold(1)" :class="{active:searchTabs===1}">搜索插件</div>
+            <div class="list-button button2" @click="searchFold(2)" :class="{active:searchTabs===2}">常用插件</div>
+            <div class="list-box" v-if="searchTabs===1">
+                <div class="list-search">
+                    <input placeholder="请输入需要搜索的插件" v-model="searchText" @keyup.13="searchAddons">
+                    <span class="button" @click="searchAddons">
+                        <i class="el-icon-search"></i>
+                    </span>
+                </div>
+                <div class="search-list" v-loading="searchLoading" :style="{height:searchH+'px'}">
+                    <div v-for="item in searchList" class="search-item">
+                        <div class="search-item-name">
+                            {{item.searchName}}
+                            <br>
+                            <span class="sub-name">
+                                最后更新时间: {{item.updateTime}}
+                                下载量: {{item.downloadCount}}
+                            </span>
+                            <span class="sub-version" v-if="item.onlineVersionList">
+                                {{item.onlineVersionList[0].version}}
+                            </span>
+                        </div>
+                        <div class="search-item-description" v-html="item.description"></div>
+                        <div class="search-item-button">
+                            <div v-if="item.hasExist" class="item-exist">已添加</div>
+                            <el-button v-else-if="!isDownload(item)" type="text" @click="addSearch(item)">添加</el-button>
+                            <div v-else class="item-exist">下载中</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="list-box" v-if="searchTabs===2">
+                <div class="other-list" :style="{height:searchH+'px'}">
+                    <div v-for="(item) in otherAddons" class="search-item">
+                        <div class="search-item-name">
+                            {{item.name}}<span v-if="item.displayName">({{item.displayName}})</span>
+                            <br>
+                        </div>
+                        <div class="search-item-description" v-html="item.description"></div>
+                        <div class="search-item-button">
+                            <div v-if="checkExist(item.name)" class="item-exist">已添加</div>
+                            <el-button v-else-if="!isDownload(item)" type="text" @click="addOtherAddons(item)">
+                                添加
+                            </el-button>
+                            <div v-else class="item-exist">下载中</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--下载列表-->
+        <div id="download-list" :class="{on:downloadShow}">
+            <div class="list-button" @click="downloadFold">
+                下<br>载<br>列<br>表<br>
+                <div class="download-button" v-if="getDownloadCount()">
+                    {{getDownloadCount()}}
+                </div>
+            </div>
+            <div class="download-box">
+                <div v-for="item in downloadList" class="download-item" v-if="item">
+                    <div class="download-name">
+                        {{item.name}}
+                        <span class="sub-version" v-if="item.onlineVersionList">
+                            {{item.onlineVersionList[0].version}}
+                        </span>
+                    </div>
+                    <div v-if="downloadDownloadType[item.index]" class="download-msg">
+                        <div v-html="formatDT(downloadDownloadType[item.index])" class="download-type"></div>
+                        <el-button v-if="isDownload(item)" type="text" @click="cancelDownload(item)"
+                            style="padding: 0;color: #5A5A5A;">
+                            取消
+                        </el-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>
+</body>
+<script src="lib/jquery.js"></script>
+<script src="lib/vue.js"></script>
+<script src="lib/element.js"></script>
+<script src="server.js"></script>
+<script src="index.js"></script>
+</html>
